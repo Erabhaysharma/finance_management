@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Plus, Search, Pencil, Trash2, Download } from "lucide-react";
-import IncomeForm from "/IncomeForm.jsx";
+import IncomeForm from "./IncomeForm.jsx";
 import { seedIncomes, today } from "../incomeData.js";
 
 const inr = (n) => "₹" + n.toLocaleString("en-IN");

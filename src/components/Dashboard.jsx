@@ -25,7 +25,7 @@ function Card({ title, children, className = "" }) {
   );
 }
 
-export default function Dashboard( onAddIncome) {
+export default function Dashboard( {onAddIncome ,onAddExpense}) {
   const [range, setRange] = useState("This month");
 
   return (
@@ -54,7 +54,7 @@ export default function Dashboard( onAddIncome) {
 
       <div className="quick">
         <button className="btn primary" onClick={onAddIncome}><Plus size={16} /> Add income</button>
-        <button className="btn"><Plus size={16} /> Add expense</button>
+        <button className="btn" onClick={onAddExpense}><Plus size={16} /> Add expense</button>
         <button className="btn">Transfer funds</button>
         <button className="btn">Export report</button>
       </div>

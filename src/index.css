@@ -122,3 +122,9 @@ td { padding: 11px 6px; border-bottom: 1px solid var(--line); }
 .dialog label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
 .dialog input { font: inherit; font-weight: 400; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; }
 .dialog-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+/* Expenses page */
+.kpis.mt { margin-top: 20px; }
+.badge.paid { background: #ccfbf1; color: #0f766e; }
+.badge.unpaid { background: #e2e8f0; color: #475569; }
+.filters .status-select { padding: 9px 10px; }

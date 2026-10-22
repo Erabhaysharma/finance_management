@@ -3,6 +3,7 @@ import Sidebar, { NAV } from "./components/Sidebar.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import IncomePage from "./components/IncomePage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
+import AnalyticsPage from "./components/AnalyticsPage.jsx";
 
 export default function App() {
   const [active, setActive] = useState("dashboard");
@@ -18,6 +19,7 @@ export default function App() {
     dashboard: <Dashboard onAddIncome={openIncomeForm} onAddExpense={openExpenseForm} />,
     income: <IncomePage formOpen={incomeFormOpen} setFormOpen={setIncomeFormOpen} />,
     expenses: <ExpensePage formOpen={expenseFormOpen} setFormOpen={setExpenseFormOpen} />,
+    analytics: <AnalyticsPage />,
   };
 
   return (

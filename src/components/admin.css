@@ -1,0 +1,15 @@
+.ad-tabs { margin: 20px 0 16px; display: inline-flex; flex-wrap: wrap; }
+.badge.owner { background: #e0e7ff; color: #3730a3; } .badge.admin { background: #ccfbf1; color: #0f766e; } .badge.staff { background: #e2e8f0; color: #475569; }
+.badge.on { background: #ccfbf1; color: #0f766e; } .badge.off { background: #fee2e2; color: #b91c1c; }
+.ad-note { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+.perm-table td, .perm-table th { text-align: center; } .perm-table td:first-child, .perm-table th:first-child { text-align: left; }
+.perm-table input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--teal); cursor: pointer; } .perm-table input:disabled { cursor: not-allowed; }
+.ad-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; max-width: 760px; }
+.ad-form label, .cat-add label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
+.ad-form input, .ad-form select, .cat-add input { font: inherit; font-weight: 400; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+.cat-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.cat-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 99px; padding: 4px 6px 4px 12px; font-size: 13px; }
+.cat-chip button { border: 0; background: none; color: var(--mute); display: grid; place-items: center; padding: 2px; border-radius: 99px; } .cat-chip button:hover { color: var(--red); }
+.cat-add { display: flex; gap: 8px; } .cat-add input { flex: 1; }
+.saved { color: var(--teal); font-size: 13px; margin-left: 10px; }

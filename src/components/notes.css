@@ -1,0 +1,14 @@
+.n-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 20px 0 16px; }
+.n-stats .card { cursor: pointer; } .n-stats .card.on { outline: 2px solid var(--teal); }
+.badge.high { background: #fee2e2; color: #b91c1c; } .badge.medium { background: #fef3c7; color: #92400e; } .badge.low { background: #e2e8f0; color: #475569; }
+.badge.to-receive, .badge.receive { background: #ccfbf1; color: #0f766e; } .badge.to-pay, .badge.pay { background: #ffedd5; color: #9a3412; } .badge.other { background: #e0e7ff; color: #3730a3; }
+tr.row-overdue td { background: #fff5f5; } tr.row-today td { background: #fffbeb; } tr.row-done td { opacity: .55; }
+.st-overdue { color: var(--red); font-weight: 500; } .st-today { color: var(--amber); font-weight: 500; }
+.reminder { background: #fff; border: 1px solid #fecaca; border-left: 5px solid var(--red); border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; }
+.reminder.warn { border-color: #fde68a; border-left-color: var(--amber); }
+.reminder-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.reminder-head b { flex: 1; }
+.reminder ul { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.reminder li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; padding: 8px 10px; background: var(--bg); border-radius: 8px; }
+.reminder li .grow { flex: 1; min-width: 160px; }
+@media (max-width: 760px) { .n-stats { grid-template-columns: 1fr 1fr; } }

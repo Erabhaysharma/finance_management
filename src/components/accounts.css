@@ -1,0 +1,19 @@
+.acct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.acct-card { display: flex; flex-direction: column; gap: 8px; }
+.acct-card.sel { outline: 2px solid var(--teal); }
+.acct-card.dim { opacity: .65; }
+.acct-top { display: flex; align-items: center; gap: 10px; }
+.acct-icon { width: 36px; height: 36px; border-radius: 10px; background: #ccfbf1; color: var(--teal); display: grid; place-items: center; flex-shrink: 0; }
+.acct-bal { font-size: 24px; font-weight: 700; }
+.acct-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 13px; color: var(--mute); }
+.acct-meta b { color: var(--ink); font-weight: 500; }
+.acct-actions { display: flex; gap: 8px; margin-top: 4px; }
+.muted { color: var(--mute); font-size: 13px; }
+.rel { color: var(--mute); font-style: italic; }
+.notice { padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; background: #ccfbf1; color: #0f766e; font-size: 14px; }
+.notice.bad { background: #fee2e2; color: #b91c1c; }
+.recon-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin: 10px 0; font-size: 13px; }
+.recon-list label { display: flex; gap: 8px; padding: 4px 0; align-items: center; }
+.badge.reconciled, .badge.matched { background: #ccfbf1; color: #0f766e; } .badge.discrepancy { background: #fee2e2; color: #b91c1c; }
+.badge.needs { background: #fef3c7; color: #92400e; } .badge.unmatched, .badge.not { background: #e2e8f0; color: #475569; }
+@media print { .sidebar, .no-print { display: none !important; } .main { padding: 0; } }

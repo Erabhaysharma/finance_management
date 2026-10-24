@@ -4,7 +4,11 @@ import Dashboard from "./components/Dashboard.jsx";
 import IncomePage from "./components/IncomePage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
 import AnalyticsPage from "./components/AnalyticsPage.jsx";
-
+import AccountsPage from "./components/AccountsPage.jsx";
+import NotesPage  from "./components/NotesPage.jsx";
+import ReminderAlerts from "./components/ReminderAlerts.jsx";
+import AdminPage from "./components/AdminPage.jsx";
+import ReportsPage from "./components/ReportsPage.jsx";
 export default function App() {
   const [active, setActive] = useState("dashboard");
   const [incomeFormOpen, setIncomeFormOpen] = useState(false);
@@ -20,12 +24,17 @@ export default function App() {
     income: <IncomePage formOpen={incomeFormOpen} setFormOpen={setIncomeFormOpen} />,
     expenses: <ExpensePage formOpen={expenseFormOpen} setFormOpen={setExpenseFormOpen} />,
     analytics: <AnalyticsPage />,
+    accounts: <AccountsPage onNavigate={setActive} />,
+    notes: <NotesPage />,
+    admin:<AdminPage/>,
+    reports: <ReportsPage />,
   };
 
   return (
     <div className="shell">
       <Sidebar active={active} onSelect={setActive} />
       <main className="main">
+          {active === "dashboard" && <ReminderAlerts onOpen={() => setActive("notes")} />}
         {pages[active] || (
           <div className="placeholder">
             <h1>{label}</h1>

@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Wallet,
-  Target, ShieldCheck, FileText,
+  Target, ShieldCheck, FileText,StickyNote
 } from "lucide-react";
 
 export const NAV = [
@@ -9,7 +9,7 @@ export const NAV = [
   { id: "expenses", label: "Expenses", icon: TrendingDown },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "accounts", label: "Cash & accounts", icon: Wallet },
-  { id: "planning", label: "Planning", icon: Target, phase2: true },
+  { id: "notes", label: "Notes & reminders", icon: StickyNote },
   { id: "admin", label: "Admin & access", icon: ShieldCheck },
   { id: "reports", label: "Reports & backups", icon: FileText },
 ];

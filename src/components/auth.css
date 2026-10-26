@@ -1,0 +1,48 @@
+/* Sign-in page */
+.auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; background: var(--bg); }
+.auth-hero { background: var(--side); color: #cfe3e0; padding: 48px 56px; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.auth-hero h2 { color: #fff; font-size: 34px; line-height: 1.2; margin: 0; max-width: 420px; }
+.auth-hero ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.auth-hero li { display: flex; align-items: center; gap: 12px; font-size: 16px; }
+.auth-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: #fff; }
+.auth-brand.dark { color: var(--ink); display: none; margin-bottom: 6px; }
+.auth-panel { display: grid; place-items: center; padding: 32px 20px; }
+.auth-card { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
+.auth-card h1 { margin: 0; font-size: 28px; }
+.auth-card .sub { margin: -8px 0 4px; }
+.auth-card label, .acct-card-form label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
+.auth-card input:not([type="checkbox"]), .acct-card-form input:not([type="checkbox"]) { font: inherit; font-weight: 400; width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+.auth-card input:focus, .acct-card-form input:focus { outline: 2px solid var(--teal); border-color: var(--teal); }
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { padding-right: 42px !important; }
+.pw-toggle, .pw-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--mute); }
+.pw-toggle { background: none; border: 0; padding: 4px; border-radius: 6px; display: grid; place-items: center; }
+.pw-toggle:hover { color: var(--teal); }
+.auth-submit { width: 100%; justify-content: center; padding: 12px 16px; font-size: 15px; }
+.auth-submit:disabled, .acct-card-form .btn:disabled { opacity: .6; cursor: wait; }
+.auth-link { background: none; border: 0; color: var(--teal); font-size: 14px; padding: 0; text-align: left; text-decoration: underline; }
+.auth-foot { margin: 4px 0 0; font-size: 13px; color: var(--mute); }
+.auth-msg { border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.auth-msg.bad { background: #fee2e2; color: #b91c1c; } .auth-msg.good { background: #ccfbf1; color: #0f766e; }
+.checklist { list-style: none; margin: -6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--mute); }
+.checklist li { display: inline-flex; align-items: center; gap: 5px; } .checklist li.ok { color: var(--teal); }
+
+/* My account page */
+.acct-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 20px; max-width: 920px; }
+.acct-card-form { display: flex; flex-direction: column; gap: 14px; align-self: start; }
+.acct-card-form h3 { margin: 0; }
+.acct-card-form .muted { margin: 0; }
+.check-row { flex-direction: row !important; align-items: center; gap: 8px !important; font-weight: 400 !important; }
+
+/* Sidebar user block (sidebar must be position: sticky, which it already is) */
+.user-menu { position: absolute; left: 14px; right: 14px; bottom: 16px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+.um-who { display: flex; align-items: center; gap: 10px; padding: 4px 8px 10px; min-width: 0; }
+.um-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+.um-text { display: flex; flex-direction: column; min-width: 0; color: #fff; font-size: 14px; }
+.um-text b, .um-text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.um-text small { color: #9fbdb9; font-size: 12px; }
+
+@media (max-width: 860px) {
+  .auth-shell { grid-template-columns: 1fr; } .auth-hero { display: none; } .auth-brand.dark { display: flex; }
+}
+@media (max-width: 760px) { .user-menu { position: static; margin-top: 12px; } }

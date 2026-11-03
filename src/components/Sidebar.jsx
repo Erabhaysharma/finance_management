@@ -1,7 +1,6 @@
-import {
-  LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Wallet,
-  Target, ShieldCheck, FileText,StickyNote
-} from "lucide-react";
+import { LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Wallet, StickyNote, ShieldCheck, FileText } from "lucide-react";
+import UserMenu from "./UserMenu.jsx";
+import { useMe } from "../../data/session.js";
 
 export const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -15,25 +14,26 @@ export const NAV = [
 ];
 
 export default function Sidebar({ active, onSelect }) {
+  const { me, error, retry } = useMe();
+  // Shows only the pages this role can view. The server enforces the same rule on every request.
+  const allowed = (id) => me && (me.role === "owner" || me.permissions?.[id]?.view);
   return (
     <aside className="sidebar">
-      <div className="brand">
-        <span className="brand-mark">₹</span>
-        <span>A4 Finance Flow</span>
-      </div>
+      <div className="brand"><span className="brand-mark">₹</span><span>A4 Finance Flow</span></div>
       <nav>
-        {NAV.map(({ id, label, icon: Icon, phase2 }) => (
-          <button
-            key={id}
-            className={"nav-item" + (active === id ? " active" : "")}
-            onClick={() => onSelect(id)}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-            {phase2 && <em className="tag">Phase 2</em>}
+        {error && (
+          <div style={{ padding: 12, margin: "4px 0", background: "rgba(255,255,255,.08)", borderRadius: 10, fontSize: 13, color: "#fecaca" }} role="alert">
+            Can't load your account: {error}
+            <div><button className="btn" style={{ marginTop: 8 }} onClick={retry}>Try again</button></div>
+          </div>
+        )}
+        {NAV.filter((n) => allowed(n.id)).map(({ id, label, icon: Icon }) => (
+          <button key={id} className={"nav-item" + (active === id ? " active" : "")} onClick={() => onSelect(id)}>
+            <Icon size={18} /><span>{label}</span>
           </button>
         ))}
       </nav>
+      <UserMenu active={active} onSelect={onSelect} />
     </aside>
   );
 }

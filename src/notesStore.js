@@ -1,47 +1,42 @@
-// Shared notes store, so the Notes page and the Dashboard alert see the same data.
-// Persists in localStorage for now. Replace commit()/load() with FastAPI calls later.
+// Notes, now stored in the database through the backend. Same exports the Notes page and dashboard alert already use.
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { api } from "./lib/api";
 
 export const TYPES = ["To receive", "To pay", "Other"];
 export const PRIORITIES = ["High", "Medium", "Low"];
-const KEY = "finance.notes.v1";
+export const PRIORITY_WEIGHT = { High: 0, Medium: 1, Low: 2 };
 
 const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export const today = () => ymd(new Date());
-const shift = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
 export const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 864e5);
 
-// Sample notes, only used the first time (delete them freely).
-const seed = () => [
-  { id: "n1", type: "To receive", title: "Collect balance payment", party: "Verma Retail", amount: 36000, dueDate: shift(-3), priority: "High", details: "Promised by last Friday", status: "Open", createdAt: shift(-10) },
-  { id: "n2", type: "To pay", title: "Pay electricity bill", party: "City Power Board", amount: 8600, dueDate: shift(0), priority: "Medium", details: "", status: "Open", createdAt: shift(-4) },
-  { id: "n3", type: "Other", title: "Call CA about GST filing", party: "", amount: "", dueDate: shift(5), priority: "Low", details: "", status: "Open", createdAt: shift(-1) },
-];
+const fromApi = (n) => ({ id: n.id, type: n.type, title: n.title, party: n.party || "", amount: n.amount == null ? "" : Number(n.amount), dueDate: n.due_date, priority: n.priority, details: n.details || "", status: n.status, createdAt: (n.created_at || "").slice(0, 10) });
+const toApi = (n) => ({ type: n.type, title: n.title, party: n.party || null, amount: n.amount === "" || n.amount == null ? null : String(n.amount), due_date: n.dueDate, priority: n.priority, details: n.details || null });
 
-function load() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch { /* ignore */ }
-  return seed();
-}
-let notes = load();
+let notes = [];
 const subs = new Set();
-function commit(next) {
-  notes = next;
-  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
-  subs.forEach((f) => f());
+export const getNotes = () => notes;
+export async function refreshNotes() {
+  try { notes = (await api("/notes")).map(fromApi); subs.forEach((f) => f()); } catch { /* signed out, or no access to notes */ }
 }
+const run = (p) => p.then(refreshNotes).catch((e) => window.alert(e.message));
 
 export const notesApi = {
-  add: (n) => commit([{ ...n, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), status: "Open", createdAt: today() }, ...notes]),
-  update: (id, patch) => commit(notes.map((n) => (n.id === id ? { ...n, ...patch } : n))),
-  remove: (id) => commit(notes.filter((n) => n.id !== id)),
-  setDone: (id, done) => commit(notes.map((n) => (n.id === id ? { ...n, status: done ? "Done" : "Open", doneAt: done ? today() : "" } : n))),
+  add: (n) => run(api("/notes", { method: "POST", body: toApi(n) })),
+  update: (id, n) => run(api(`/notes/${id}`, { method: "PATCH", body: toApi(n) })),
+  setDone: (id, done) => run(api(`/notes/${id}`, { method: "PATCH", body: { status: done ? "Done" : "Open" } })),
+  remove: (id) => run(api(`/notes/${id}`, { method: "DELETE" })),
 };
 
-// Re-renders every minute so a note turns "overdue" after midnight without a refresh.
+// Loads on mount and every minute, so another user's changes and midnight rollovers show up without a refresh.
 export function useNotes() {
   const list = useSyncExternalStore((cb) => { subs.add(cb); return () => subs.delete(cb); }, () => notes);
   const [, tick] = useState(0);
-  useEffect(() => { const i = setInterval(() => tick((x) => x + 1), 60000); return () => clearInterval(i); }, []);
+  useEffect(() => {
+    refreshNotes();
+    const i = setInterval(() => { tick((x) => x + 1); refreshNotes(); }, 60000);
+    return () => clearInterval(i);
+  }, []);
   return list;
 }
 
@@ -53,4 +48,3 @@ export function noteState(n) {
   if (d === 0) return { key: "today", days: 0, label: "Due today" };
   return { key: d >= -3 ? "soon" : "later", days: d, label: `In ${-d} day${d < -1 ? "s" : ""}` };
 }
-export const PRIORITY_WEIGHT = { High: 0, Medium: 1, Low: 2 };

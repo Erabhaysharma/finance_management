@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase, LINK_TYPE } from "../lib/supabase";
 
 const Ctx = createContext(null);
 export const useAuth = () => useContext(Ctx);
@@ -18,11 +18,16 @@ function SetupNotice() {
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recovery, setRecovery] = useState(false); // true while the user is setting a new password from an email link
+  const [recovery, setRecovery] = useState(!!LINK_TYPE); // true while the user is setting a password from an invite or reset link
+  const [linkExpired, setLinkExpired] = useState(false);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
-    supabase.auth.getSession().then(({ data }) => { setSession(data.session); setLoading(false); });
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (LINK_TYPE && !data.session) { setRecovery(false); setLinkExpired(true); } // the link was expired or already used
+      setLoading(false);
+    });
     const { data } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (event === "PASSWORD_RECOVERY") setRecovery(true);
@@ -34,7 +39,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => {
     const user = session?.user ?? null;
     return {
-      session, user, loading, recovery,
+      session, user, loading, recovery, linkExpired, invited: LINK_TYPE === "invite" || LINK_TYPE === "signup",
       accessToken: session?.access_token ?? null, // send as "Authorization: Bearer ..." to the FastAPI backend
       signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
       signOut: () => supabase.auth.signOut(),
@@ -57,7 +62,7 @@ export function AuthProvider({ children }) {
       signOutOthers: () => supabase.auth.signOut({ scope: "others" }),
       signOutEverywhere: () => supabase.auth.signOut({ scope: "global" }),
     };
-  }, [session, loading, recovery]);
+  }, [session, loading, recovery, linkExpired]);
 
   if (!supabase) return <SetupNotice />;
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -24,7 +24,8 @@ function MainApp() {
 
   // Add new pages here one by one.
   const pages = {
-    dashboard: <Dashboard onAddIncome={openIncomeForm} onAddExpense={openExpenseForm} />,
+    
+    dashboard: <Dashboard onAddIncome={openIncomeForm} onAddExpense={openExpenseForm} onNavigate={setActive} />,
     income: <IncomePage formOpen={incomeFormOpen} setFormOpen={setIncomeFormOpen} />,
     expenses: <ExpensePage formOpen={expenseFormOpen} setFormOpen={setExpenseFormOpen} />,
     analytics: <AnalyticsPage />,

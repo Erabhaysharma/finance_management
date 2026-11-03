@@ -1,75 +1,72 @@
-// Admin data store (users, role permissions, business settings, activity log).
-// Persists in localStorage for now. Replace commit()/load() with FastAPI calls later.
-// NOTE: permissions here only describe access. Real enforcement must happen on the backend.
-import { useSyncExternalStore } from "react";
+// Admin data (permissions, settings, change log), now read and written through the backend.
+// Users are handled by UsersTab. Same exports the Admin and Reports pages already use.
+import { useEffect, useSyncExternalStore } from "react";
+import { api } from "./lib/api";
 
 export const ROLES = ["Owner", "Admin", "Staff"];
 export const MODULES = [["dashboard", "Dashboard"], ["income", "Income"], ["expenses", "Expenses"], ["analytics", "Analytics"], ["accounts", "Cash & accounts"], ["notes", "Notes"], ["reports", "Reports"], ["admin", "Admin & access"]];
 export const ACTIONS = [["view", "View"], ["add", "Add"], ["edit", "Edit"], ["delete", "Delete"], ["export", "Export"]];
 export const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-const grid = (fn) => Object.fromEntries(MODULES.map(([m]) => [m, Object.fromEntries(ACTIONS.map(([a]) => [a, !!fn(m, a)]))]));
-const DEFAULTS = {
-  users: [{ id: "u1", name: "Adarsh", email: "owner@yourbusiness.com", role: "Owner", active: true, createdAt: new Date().toISOString().slice(0, 10) }],
-  perms: {
-    Owner: grid(() => true),
-    Admin: grid((m) => m !== "admin"), // everything except the Admin & access module
-    Staff: grid((m, a) => (["dashboard", "notes"].includes(m) && a === "view") || (["income", "expenses", "notes"].includes(m) && ["view", "add", "edit"].includes(a))),
-  },
-  settings: { business: "", currency: "INR", fyStart: "April", incomeSources: ["Sales", "Services", "Commission", "Other"], expenseCategories: ["Rent", "Salaries", "Utilities", "Transport", "Marketing", "Supplies", "Miscellaneous"] },
-  log: [],
+const blankGrid = () => Object.fromEntries(MODULES.map(([m]) => [m, Object.fromEntries(ACTIONS.map(([a]) => [a, false]))]));
+let state = { users: [], perms: { Owner: blankGrid(), Admin: blankGrid(), Staff: blankGrid() }, settings: { business: "", currency: "INR", fyStart: "April", incomeSources: [], expenseCategories: [], cats: [] }, log: [] };
+const subs = new Set();
+const set = (p) => { state = { ...state, ...p }; subs.forEach((f) => f()); };
+const cap = (r) => r[0].toUpperCase() + r.slice(1);
+export const getAdminState = () => state;
+
+const show = (v) => (v == null ? "none" : typeof v === "object" ? JSON.stringify(v) : String(v));
+function summarize(d, action) {
+  if (!d) return "";
+  if (action === "update") return Object.entries(d).slice(0, 3).map(([k, v]) => `${k}: ${show(v.from)} → ${show(v.to)}`).join(", ");
+  return [d.ref, d.name, d.title, d.customer, d.vendor, d.description, d.business_name].filter(Boolean).join(" · ");
+}
+
+export async function loadAdmin() {
+  const [perms, settings, activity] = await Promise.allSettled([api("/admin/permissions"), api("/admin/settings"), api("/admin/activity?size=200")]);
+  const next = {};
+  if (perms.status === "fulfilled") {
+    const g = { Owner: blankGrid(), Admin: blankGrid(), Staff: blankGrid() };
+    perms.value.forEach((r) => { g[cap(r.role)][r.module] = { view: r.can_view, add: r.can_add, edit: r.can_edit, delete: r.can_delete, export: r.can_export }; });
+    next.perms = g;
+  }
+  if (settings.status === "fulfilled") {
+    const { business: b, categories } = settings.value;
+    next.settings = { business: b.business_name, currency: b.currency, fyStart: MONTHS[b.fy_start_month - 1], cats: categories,
+      incomeSources: categories.filter((c) => c.kind === "income_source").map((c) => c.name), expenseCategories: categories.filter((c) => c.kind === "expense_category").map((c) => c.name) };
+  }
+  if (activity.status === "fulfilled") next.log = activity.value.items.map((l) => ({ id: l.id, at: l.at, actor: l.actor_name || "System", action: `${cap(l.action)} ${l.entity.replace(/_/g, " ")}`, detail: summarize(l.detail, l.action) }));
+  set(next);
+}
+
+export const useAdmin = () => {
+  const s = useSyncExternalStore((cb) => { subs.add(cb); return () => subs.delete(cb); }, () => state);
+  useEffect(() => { loadAdmin(); }, []);
+  return s;
 };
 
-const KEY = "finance.admin.v1";
-function load() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch { /* ignore */ }
-  return DEFAULTS;
-}
-let state = load();
-const subs = new Set();
-function commit(next, action, detail) {
-  const actor = next.users.find((u) => u.role === "Owner")?.name || "Admin";
-  const log = action ? [{ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: new Date().toISOString(), actor, action, detail }, ...next.log].slice(0, 300) : next.log;
-  state = { ...next, log };
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  subs.forEach((f) => f());
-}
-export const useAdmin = () => useSyncExternalStore((cb) => { subs.add(cb); return () => subs.delete(cb); }, () => state);
-
-const owners = (users) => users.filter((u) => u.role === "Owner" && u.active).length;
+const guard = (p) => p.then(loadAdmin).catch((e) => { window.alert(e.message); loadAdmin(); });
 
 export const adminApi = {
-  saveUser(u) {
-    const email = u.email.trim().toLowerCase(), name = u.name.trim();
-    if (!name) throw new Error("Name is required");
-    if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Enter a valid email address");
-    if (state.users.some((x) => x.id !== u.id && x.email.toLowerCase() === email)) throw new Error("A user with this email already exists");
-    if (u.id) {
-      const cur = state.users.find((x) => x.id === u.id);
-      const next = state.users.map((x) => (x.id === u.id ? { ...x, name, email, role: u.role, active: u.active } : x));
-      if (owners(next) < 1) throw new Error("There must be at least one active Owner");
-      commit({ ...state, users: next }, "User updated", `${name} (${u.role}${u.active ? "" : ", disabled"})${cur.role !== u.role ? `, role changed from ${cur.role}` : ""}`);
-    } else {
-      commit({ ...state, users: [...state.users, { id: "u" + Date.now().toString(36), name, email, role: u.role, active: u.active, createdAt: new Date().toISOString().slice(0, 10) }] }, "User added", `${name} as ${u.role}`);
-    }
-  },
   setPerm(role, mod, act, on) {
     if (role === "Owner") return;
     const row = { ...state.perms[role][mod], [act]: on };
-    if (on && act !== "view") row.view = true;            // cannot add/edit/delete/export without viewing
+    if (on && act !== "view") row.view = true;                       // cannot add/edit/delete/export without viewing
     if (!on && act === "view") ACTIONS.forEach(([a]) => (row[a] = false));
-    commit({ ...state, perms: { ...state.perms, [role]: { ...state.perms[role], [mod]: row } } }, "Permission changed", `${role} · ${MODULES.find((m) => m[0] === mod)[1]} · ${act} ${on ? "allowed" : "removed"}`);
+    set({ perms: { ...state.perms, [role]: { ...state.perms[role], [mod]: row } } }); // instant on screen, then saved
+    return guard(api(`/admin/permissions/${role.toLowerCase()}/${mod}`, { method: "PUT", body: { can_view: row.view, can_add: row.add, can_edit: row.edit, can_delete: row.delete, can_export: row.export } }));
   },
-  saveSettings(s) {
-    if (!s.business.trim()) throw new Error("Business name is required");
-    commit({ ...state, settings: { ...state.settings, business: s.business.trim(), currency: s.currency, fyStart: s.fyStart } }, "Settings updated", `${s.business.trim()}, ${s.currency}, financial year from ${s.fyStart}`);
+  async saveSettings(s) {
+    await api("/admin/settings", { method: "PUT", body: { business_name: s.business.trim(), currency: s.currency, fy_start_month: MONTHS.indexOf(s.fyStart) + 1 } });
+    await loadAdmin();
   },
-  addCategory(kind, name) {
-    const n = name.trim(); if (!n) throw new Error("Enter a name");
-    if (state.settings[kind].some((x) => x.toLowerCase() === n.toLowerCase())) throw new Error("Already exists");
-    commit({ ...state, settings: { ...state.settings, [kind]: [...state.settings[kind], n] } }, "Category added", `${kind === "incomeSources" ? "Income source" : "Expense category"}: ${n}`);
+  async addCategory(kind, name) {
+    await api("/admin/categories", { method: "POST", body: { kind: kind === "incomeSources" ? "income_source" : "expense_category", name: name.trim() } });
+    await loadAdmin();
   },
   removeCategory(kind, name) {
-    commit({ ...state, settings: { ...state.settings, [kind]: state.settings[kind].filter((x) => x !== name) } }, "Category removed", `${kind === "incomeSources" ? "Income source" : "Expense category"}: ${name}`);
+    const k = kind === "incomeSources" ? "income_source" : "expense_category";
+    const cat = state.settings.cats.find((c) => c.kind === k && c.name === name);
+    return cat ? guard(api(`/admin/categories/${cat.id}`, { method: "DELETE" })) : undefined;
   },
 };

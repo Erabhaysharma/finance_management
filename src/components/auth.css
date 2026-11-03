@@ -34,8 +34,10 @@
 .acct-card-form .muted { margin: 0; }
 .check-row { flex-direction: row !important; align-items: center; gap: 8px !important; font-weight: 400 !important; }
 
-/* Sidebar user block (sidebar must be position: sticky, which it already is) */
-.user-menu { position: absolute; left: 14px; right: 14px; bottom: 16px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+/* Sidebar: menu scrolls, account block is pinned at the bottom */
+.sidebar { display: flex; flex-direction: column; }
+.sidebar nav { flex: 1; overflow-y: auto; }
+.user-menu { margin-top: 12px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; display: flex; flex-direction: column; gap: 2px; }
 .um-who { display: flex; align-items: center; gap: 10px; padding: 4px 8px 10px; min-width: 0; }
 .um-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
 .um-text { display: flex; flex-direction: column; min-width: 0; color: #fff; font-size: 14px; }
@@ -45,4 +47,3 @@
 @media (max-width: 860px) {
   .auth-shell { grid-template-columns: 1fr; } .auth-hero { display: none; } .auth-brand.dark { display: flex; }
 }
-@media (max-width: 760px) { .user-menu { position: static; margin-top: 12px; } }

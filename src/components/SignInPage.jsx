@@ -7,15 +7,16 @@ import "./auth.css";
 
 const BRAND = "A4 Finance Flow";
 const TITLES = { signin: ["Welcome back", "Sign in to manage your business finances."], forgot: ["Reset your password", "Enter your email and we will send you a reset link."], newpass: ["Choose a new password", "Pick a strong password you have not used before."] };
+const WELCOME = ["Welcome! Set your password", "Choose a password to activate your account. You will use it to sign in from now on."];
 
 export default function SignInPage() {
-  const { recovery, signIn, sendReset, finishRecovery } = useAuth();
+  const { recovery, invited, linkExpired, signIn, sendReset, finishRecovery } = useAuth();
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(linkExpired ? "This link has expired or was already used. Ask your administrator to send a new one." : "");
   const [info, setInfo] = useState("");
   const view = recovery ? "newpass" : mode;
   const go = (m) => { setMode(m); setError(""); setInfo(""); setPw(""); setPw2(""); };
@@ -41,7 +42,7 @@ export default function SignInPage() {
     finally { setBusy(false); }
   }
 
-  const [title, sub] = TITLES[view];
+  const [title, sub] = view === "newpass" && invited ? WELCOME : TITLES[view];
   return (
     <div className="auth-shell">
       <aside className="auth-hero">
@@ -76,7 +77,7 @@ export default function SignInPage() {
           {info && <div className="auth-msg good" role="status">{info}</div>}
 
           <button className="btn primary auth-submit" disabled={busy}>
-            {busy ? "Please wait…" : view === "signin" ? "Sign in" : view === "forgot" ? "Send reset link" : "Save new password"}
+            {busy ? "Please wait…" : view === "signin" ? "Sign in" : view === "forgot" ? "Send reset link" : (invited ? "Activate my account" : "Save new password")}
           </button>
 
           {view === "signin" && <button type="button" className="auth-link" onClick={() => go("forgot")}>Forgot your password?</button>}

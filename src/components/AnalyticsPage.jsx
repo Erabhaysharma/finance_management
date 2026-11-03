@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ResponsiveContainer, ComposedChart, BarChart, AreaChart, Area, Bar, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
 import { Download, Printer, SlidersHorizontal, RotateCcw, ArrowUp, ArrowDown } from "lucide-react";
-import { seedIncomes, SOURCES, METHODS, ACCOUNTS } from "../incomeData";
-import { seedExpenses, LIMITS, CATEGORIES, TYPES } from "../expenseData";
+//import { seedIncomes, SOURCES, METHODS, ACCOUNTS } from "../incomeData";
+//import { seedExpenses, LIMITS, CATEGORIES, TYPES } from "../expenseData";
 import * as A from "../analytics";
-import "./analytics.css";
+//import "./analytics.css";
+import { api } from "../accountsService";
+import { useLookups } from "../../data/session";
+import { LIMITS, TYPES } from "../expenseData";
+import { METHODS } from "../ledger";
 
 // Swap this for a FastAPI call later, e.g. fetch("/api/transactions").then((r) => r.json()).
-const loadData = () => Promise.resolve({ incomes: seedIncomes, expenses: seedExpenses });
+//const loadData = () => Promise.resolve({ incomes: seedIncomes, expenses: seedExpenses });
+
+const loadData = () => api.getAll();
 
 const FRESH = { period: "Last 30 days", from: "", to: "", kind: "All", account: "", method: "", state: "", source: "", category: "", etype: "", q: "" };
 const COLS = [["date", "Date"], ["ref", "Ref"], ["kind", "Type"], ["party", "Party"], ["category", "Category"], ["method", "Method"], ["state", "Status"], ["amount", "Amount"], ["settled", "Settled"]];
@@ -43,6 +49,7 @@ function Kpi({ label, value, prev, compare, inverse }) {
 const Empty = ({ text = "No data for the selected filters." }) => <div className="state-box">{text}</div>;
 
 export default function AnalyticsPage() {
+  const { sources: SOURCES, categories: CATEGORIES } = useLookups();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [flt, setFlt] = useState(FRESH);
@@ -130,7 +137,7 @@ export default function AnalyticsPage() {
           <label>To<input type="date" value={flt.to} min={flt.from || undefined} onChange={set("to")} /></label>
         </>}
         <Sel label="Transaction type" value={flt.kind === "All" ? "" : flt.kind} onChange={(e) => setFlt((p) => ({ ...p, kind: e.target.value || "All" }))} options={["Income", "Expense"]} />
-        <Sel label="Account" value={flt.account} onChange={set("account")} options={[...ACCOUNTS, ["__cash", "Cash (no account)"]]} />
+        <Sel label="Account" value={flt.account} onChange={set("account")} options={[...data.accounts.map((a) => a.name), ["__cash", "Cash (no account)"]]} />
         <Sel label="Payment method" value={flt.method} onChange={set("method")} options={METHODS} />
         <Sel label="Payment status" value={flt.state} onChange={set("state")} options={["Settled", "Partial", "Unsettled", "Overdue"]} />
         <Sel label="Income source" value={flt.source} onChange={set("source")} options={SOURCES} />

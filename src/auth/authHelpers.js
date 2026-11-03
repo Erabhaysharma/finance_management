@@ -16,3 +16,9 @@ export function friendlyAuthError(e) {
   if (m.includes("weak") || m.includes("password should")) return "That password is too weak. Use a longer one with letters and numbers.";
   return e?.message || "Something went wrong. Please try again.";
 }
+
+// Which kind of email link did the user just open? Looks at the #access_token=...&type=invite part of the address.
+export function detectLinkType(hash) {
+  const t = /[#&]type=(invite|recovery|signup)\b/.exec(hash || "");
+  return t ? t[1] : null;
+}

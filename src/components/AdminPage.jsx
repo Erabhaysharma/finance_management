@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, X, Lock, Search } from "lucide-react";
 import { useAdmin, adminApi, ROLES, MODULES, ACTIONS, MONTHS } from "../adminStore";
+import UsersTab from "./UsersTab.jsx";
 import "./admin.css";
 
 const when = (iso) => new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -90,7 +91,7 @@ function Activity({ log }) {
 
 function CatBox({ title, kind, items }) {
   const [v, setV] = useState("");
-  const add = (e) => { e.preventDefault(); try { adminApi.addCategory(kind, v); setV(""); } catch (x) { window.alert(x.message); } };
+  const add = async(e) => { e.preventDefault(); try { await adminApi.addCategory(kind, v); setV(""); } catch (x) { window.alert(x.message); } };
   return (
     <section className="card">
       <h3>{title}</h3>
@@ -104,7 +105,7 @@ function Settings({ settings }) {
   const [f, setF] = useState(settings);
   const [msg, setMsg] = useState("");
   const set = (k) => (e) => { setMsg(""); setF((p) => ({ ...p, [k]: e.target.value })); };
-  const save = (e) => { e.preventDefault(); try { adminApi.saveSettings(f); setMsg("Saved"); } catch (x) { setMsg(x.message); } };
+  const save = async(e) => { e.preventDefault(); try { await adminApi.saveSettings(f); setMsg("Saved"); } catch (x) { setMsg(x.message); } };
   return (
     <>
       <section className="card">
@@ -135,7 +136,7 @@ export default function AdminPage() {
     <>
       <header className="topbar"><div><h1>Admin &amp; access</h1><p className="sub">Manage who can use the system, what they can do, and how the business is set up.</p></div></header>
       <div className="seg ad-tabs" role="tablist">{TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{t}</button>)}</div>
-      {tab === TABS[0] && <Users users={users} />}
+      {tab === TABS[0] && <UsersTab/>}
       {tab === TABS[1] && <Permissions perms={perms} />}
       {tab === TABS[2] && <Activity log={log} />}
       {tab === TABS[3] && <Settings key={settings.business + settings.fyStart} settings={settings} />}

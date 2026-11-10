@@ -8,6 +8,7 @@ import AccountsPage from "./components/AccountsPage.jsx";
 import NotesPage from "./components/NotesPage.jsx";
 import ReminderAlerts from "./components/ReminderAlerts.jsx";
 import AdminPage from "./components/AdminPage.jsx";
+import AssistantPage from "./components/AssistantPage.jsx";
 import ReportsPage from "./components/ReportsPage.jsx";
 import AccountPage from "./components/AccountPage.jsx";
 import SignInPage from "./components/SignInPage.jsx";
@@ -24,7 +25,6 @@ function MainApp() {
 
   // Add new pages here one by one.
   const pages = {
-    
     dashboard: <Dashboard onAddIncome={openIncomeForm} onAddExpense={openExpenseForm} onNavigate={setActive} />,
     income: <IncomePage formOpen={incomeFormOpen} setFormOpen={setIncomeFormOpen} />,
     expenses: <ExpensePage formOpen={expenseFormOpen} setFormOpen={setExpenseFormOpen} />,
@@ -32,6 +32,7 @@ function MainApp() {
     accounts: <AccountsPage onNavigate={setActive} />,
     notes: <NotesPage />,
     admin: <AdminPage />,
+    assistant: <AssistantPage />,
     reports: <ReportsPage />,
     account: <AccountPage />,
   };

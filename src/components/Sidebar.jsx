@@ -1,4 +1,7 @@
-import { LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Wallet, StickyNote, ShieldCheck, FileText } from "lucide-react";
+import {
+  LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Wallet,
+  StickyNote, ShieldCheck, FileText, Bot
+} from "lucide-react";
 import UserMenu from "./UserMenu.jsx";
 import { useMe } from "../../data/session.js";
 
@@ -10,6 +13,7 @@ export const NAV = [
   { id: "accounts", label: "Cash & accounts", icon: Wallet },
   { id: "notes", label: "Notes & reminders", icon: StickyNote },
   { id: "admin", label: "Admin & access", icon: ShieldCheck },
+  { id: "assistant", label: "Arth Saarthi", icon: Bot },
   { id: "reports", label: "Reports & backups", icon: FileText },
 ];
 
